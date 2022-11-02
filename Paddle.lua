@@ -1,5 +1,6 @@
 Paddle = class()
 PADDLE_SPEED = 200
+PADDLE_HEIGHT = 50
 
 function Paddle:init(x, y)
         self.x = x
@@ -8,7 +9,7 @@ function Paddle:init(x, y)
 end
 
 function Paddle:render()
-        love.graphics.rectangle('fill', self.x, self.y, 3, 50)	-- rectangle on the left
+        love.graphics.rectangle('fill', self.x, self.y, 3, PADDLE_HEIGHT)	-- rectangle on the left
 end
 
 function Paddle:update(dt, upKey, downKey)

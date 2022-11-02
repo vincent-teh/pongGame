@@ -10,12 +10,10 @@ WINDOW_HEIGHT = 720
 VIRTUAL_WIDTH = 432
 VIRTUAL_HEIGHT = 243
 
+BALL_SIZE = 4
+
 function love.load()
---[[ 	love.window.setMode(WINDOW_WIDTH, WINDOW_HEIGHT, {
-		fullscreen = false,
-		resizable = false,
-		vsync = true            -- vertical sync
-	}) ]]
+        love.window.setTitle("Pong Game")
         math.randomseed(os.time())
 
         love.graphics.setDefaultFilter('nearest', 'nearest')
@@ -28,7 +26,7 @@ function love.load()
         player1 = Paddle(20, 40)
         player2 = Paddle(VIRTUAL_WIDTH - 20 - 3, VIRTUAL_HEIGHT -  40 - 50)
 
-        ball = Ball(4, 4)
+        ball = Ball(BALL_SIZE, BALL_SIZE)
 
         gameState = 'start'
 end
@@ -43,19 +41,16 @@ function love.draw()
                 20,  -- start value of y
                 VIRTUAL_WIDTH,           -- number of width to center things
                 'center')               -- alignment mode
-        -- love.graphics.rectangle('fill', 20, player1Y, 3, 50)	-- rectangle on the left
+
+        -- initiate the render of the ball and both player
         player1:render()
-        --[[ love.graphics.rectangle('fill',
-                                VIRTUAL_WIDTH - 20 - 3,
-                                player2Y,
-                                3, 50)			-- rectangle on the right
-]]
         player2:render()
         ball:draw()
 
         love.graphics.setNewFont(8)
         love.graphics.printf("Player 1: " .. player1.score, 70, 20, VIRTUAL_WIDTH, 'left')
         love.graphics.printf("Player 2: " .. player2.score, -70, 20, VIRTUAL_WIDTH, 'right')
+        printFPS()
         push:apply('end')
 end
 
@@ -70,12 +65,39 @@ function love.keypressed(key)
                         gameState = 'start'
                 end
 	end
+        if key == 'r' and gameState == 'start' then
+                ball:reset()
+        end
 end
 
 function love.update(dt)
         player1:update(dt, 'w', 's')
         player2:update(dt, 'up', 'down')
         if gameState == 'play' then
+                if ball:collide(player1) then
+                        ball.dx = -ball.dx * 1.03
+
+                end
+                if ball:collide(player2) then
+                        ball.dx = -ball.dx * 1.03
+                end
+
+                if ball.y < 0 then
+                        ball.dy = math.random(10, 150)
+                elseif ball.y > VIRTUAL_HEIGHT then
+                        ball.dy = -math.random(10, 150)
+                end
                 ball:update(dt)
         end
 end
+
+function printFPS()
+        love.graphics.setNewFont(12)
+        love.graphics.setColor(0, 1, 0, 1)
+        love.graphics.print('FPS:' .. tostring(love.timer.getFPS()), 10, 10)
+end
+
+
+--[[ Problem 1: lagging issue
+     Problem 2: the ball when at bottom right will just pass through
+     regardless of conditions ]]
