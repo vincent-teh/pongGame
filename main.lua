@@ -76,10 +76,11 @@ function love.update(dt)
         if gameState == 'play' then
                 if ball:collide(player1) then
                         ball.dx = -ball.dx * 1.03
-
+                        ball.x = player1.x + 3
                 end
                 if ball:collide(player2) then
                         ball.dx = -ball.dx * 1.03
+                        ball.x = player2.x - 4
                 end
 
                 if ball.y < 0 then
