@@ -13,89 +13,99 @@ VIRTUAL_HEIGHT = 243
 BALL_SIZE = 4
 
 function love.load()
-        love.window.setTitle("Pong Game")
-        math.randomseed(os.time())
+	love.window.setTitle("Pong Game")
+	math.randomseed(os.time())
 
-        love.graphics.setDefaultFilter('nearest', 'nearest')
+	love.graphics.setDefaultFilter('nearest', 'nearest')
 	push:setupScreen(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, {
 		fullscreen = false,
 		resizable = false,
 		vsync = true            -- vertical sync
 	})
 
-        player1 = Paddle(20, 40)
-        player2 = Paddle(VIRTUAL_WIDTH - 20 - 3, VIRTUAL_HEIGHT -  40 - 50)
+	player1 = Paddle(20, 40)
+	player2 = Paddle(VIRTUAL_WIDTH - 20 - 3, VIRTUAL_HEIGHT -  40 - 50)
 
-        ball = Ball(BALL_SIZE, BALL_SIZE)
+	ball = Ball(BALL_SIZE, BALL_SIZE)
 
-        gameState = 'start'
+	gameState = 'start'
 end
 
 function love.draw()
-        love.graphics.clear(40/255, 45/255, 52/255, 1)
-        push:apply('start')
-        love.graphics.setNewFont(12)
-        love.graphics.printf(
-                "Pong Game",          -- string
-                0,                      -- start value of x (0 indicates left most)
-                20,  -- start value of y
-                VIRTUAL_WIDTH,           -- number of width to center things
-                'center')               -- alignment mode
+	love.graphics.clear(40/255, 45/255, 52/255, 1)
+	push:apply('start')
+	love.graphics.setNewFont(12)
+	love.graphics.printf(
+		"Pong Game",          -- string
+		0,                      -- start value of x (0 indicates left most)
+		20,  -- start value of y
+		VIRTUAL_WIDTH,           -- number of width to center things
+		'center')               -- alignment mode
 
-        -- initiate the render of the ball and both player
-        player1:render()
-        player2:render()
-        ball:draw()
+	-- initiate the render of the ball and both player
+	player1:render()
+	player2:render()
+	ball:draw()
 
-        love.graphics.setNewFont(8)
-        love.graphics.printf("Player 1: " .. player1.score, 70, 20, VIRTUAL_WIDTH, 'left')
-        love.graphics.printf("Player 2: " .. player2.score, -70, 20, VIRTUAL_WIDTH, 'right')
-        printFPS()
-        push:apply('end')
+	love.graphics.setNewFont(8)
+	love.graphics.printf("Player 1: " .. player1.score, 70, 20, VIRTUAL_WIDTH, 'left')
+	love.graphics.printf("Player 2: " .. player2.score, -70, 20, VIRTUAL_WIDTH, 'right')
+	printFPS()
+	push:apply('end')
 end
 
 function love.keypressed(key)
 	if key == 'escape' then
 		love.event.quit()
 	end
-        if key == 'enter' or key == 'return' then
-                if gameState == 'start' then
-                        gameState = 'play'
-                else
-                        gameState = 'start'
-                end
+	if key == 'enter' or key == 'return' then
+		if gameState == 'start' then
+			gameState = 'play'
+		else
+			gameState = 'start'
+		end
 	end
-        if key == 'r' and gameState == 'start' then
-                ball:reset()
-        end
+	if key == 'r' and gameState == 'start' then
+		ball:reset()
+	end
 end
 
 function love.update(dt)
-        player1:update(dt, 'w', 's')
-        player2:update(dt, 'up', 'down')
-        if gameState == 'play' then
-                if ball:collide(player1) then
-                        ball.dx = -ball.dx * 1.03
-                        ball.x = player1.x + 3
-                end
-                if ball:collide(player2) then
-                        ball.dx = -ball.dx * 1.03
-                        ball.x = player2.x - 4
-                end
+	player1:update(dt, 'w', 's')
+	player2:update(dt, 'up', 'down')
+	if gameState == 'play' then
+		if ball:collide(player1) then
+			ball.dx = -ball.dx * 1.03
+			ball.x = player1.x + 3
+		end
+		if ball:collide(player2) then
+			ball.dx = -ball.dx * 1.03
+			ball.x = player2.x - 4
+		end
 
-                if ball.y < 0 then
-                        ball.dy = math.random(10, 150)
-                elseif ball.y > VIRTUAL_HEIGHT then
-                        ball.dy = -math.random(10, 150)
-                end
-                ball:update(dt)
-        end
+		if ball.y < 0 then
+			ball.dy = math.random(10, 150)
+		elseif ball.y + 4 > VIRTUAL_HEIGHT then
+			ball.dy = -math.random(10, 150)
+		end
+		ball:update(dt)
+		if ball.x + 4 < 0 then
+			player2.score = player2.score + 1
+			gameState = 'start'
+			ball:reset()
+		end
+		if ball.x > VIRTUAL_WIDTH then
+			player1.score = player1.score + 1
+			gameState = 'start'
+			ball:reset()
+		end
+	end
 end
 
 function printFPS()
-        love.graphics.setNewFont(12)
-        love.graphics.setColor(0, 1, 0, 1)
-        love.graphics.print('FPS:' .. tostring(love.timer.getFPS()), 10, 10)
+	love.graphics.setNewFont(12)
+	love.graphics.setColor(0, 1, 0, 1)
+	love.graphics.print('FPS:' .. tostring(love.timer.getFPS()), 10, 10)
 end
 
 
